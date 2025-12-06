@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Logo de Cheque" width="180"/>
+  <img src="logo.png" alt="Logo de Cheque" width="180"/>
 </p>
 
 <h1 align="center">Cheque</h1>
