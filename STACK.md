@@ -25,7 +25,7 @@ Runs everywhere:
 - Pyodide (Python execution via Web Worker)  
 - JavaScript sandbox (Web Worker)  
 - SQLite  
-  - Native SQLite (mobile/desktop/PWA)  
+  - Native SQLite (mobile/desktop via Capacitor)
   - SQLite WASM (web browser)  
 - Drizzle ORM  
 - Service Worker + Workbox (PWA)  
@@ -51,7 +51,7 @@ Acts as the "local server" in offline schools.
 - Tailwind CSS  
 - i18next  
 - SQLite + Drizzle ORM  
-- WebRTC/WebSocket LAN sync server (native/PWA only)  
+- WebRTC/WebSocket LAN sync server (native apps only) 
 - Optional Convex sync adapter  
 
 ### Responsibilities
@@ -298,7 +298,7 @@ Handled entirely by @cheque/web-course-pack-loader:
 | SQLite | Native | Native | WASM |
 | Course Pack Import | Yes | Yes | Yes (via loader) |
 | Offline Support | Yes | Yes | Limited (requires PWA install) |
-| LAN Sync | Yes | Yes | No |
+| LAN Sync | Yes | No | No |
 | Cloud Sync | Optional | Optional | Yes |
 | Teacher Dashboard | Local or Cloud | Local or Cloud | Cloud |
 
