@@ -4,11 +4,9 @@ Local-first, offline-capable, and fully functional in a standard web browser.
 
 This document describes the complete system architecture for Cheque.dev, including the student app, teacher app, offline runtime, web runtime, local database, syncing, course packs, and development infrastructure.
 
----
+<h1>Architecture Diagram</h1>
 
-# Architecture Diagram
-
-``` mermaid
+```mermaid
 
 flowchart TB
     %% ========================
@@ -210,7 +208,8 @@ flowchart TB
 
 # Subcharts (Simplified Views)
 
-## 1 — Client Applications Overview
+<details>
+  <summary><strong>Toggle</strong><h2>1 — Client Applications Overview</h2></summary>
 
 ```mermaid
 
@@ -244,7 +243,10 @@ flowchart LR
 
 ```
 
-# 2 - Local Runtime Layer
+</details>
+
+<details>
+  <summary><strong>Toggle</strong><h2>2 - Local Runtime Layer</h2></summary>
 
 ```mermaid
 
@@ -266,7 +268,10 @@ flowchart LR
 
 ```
 
-# 3 - Course Pack Pipeline
+</details>
+
+<details>
+  <summary><strong>Toggle</strong><h2>3 - Course Pack Pipeline</h2></summary>
 
 ```mermaid
 
@@ -285,7 +290,10 @@ flowchart LR
 
 ```
 
-# 4 - Sync System Modes
+</details>
+
+<details>
+  <summary><strong>Toggle</strong><h2>4 - Sync System Modes</h2></summary>
 
 ```mermaid
 
@@ -306,7 +314,10 @@ flowchart TB
 
 ```
 
-# 5 - Convex Cloud Layer (Online)
+</details>
+
+<details>
+  <summary><strong>Toggle</strong><h2>5 - Convex Cloud Layer (Online)</h2></summary>
 
 ```mermaid
 
@@ -332,11 +343,12 @@ flowchart LR
     %% Webpage files feed public renderer
     C6 --> PW
 
-
-
 ```
 
-# 6 - Student Publishing Flow (Public Webpages)
+</details>
+
+<details>
+  <summary><strong>Toggle</strong><h2>6 - Student Publishing Flow (Public Webpages)</h2></summary>
 
 ```mermaid
 
@@ -354,7 +366,9 @@ flowchart LR
 
 ```
 
----
+</details>
+
+
 
 # 1. Applications
 
