@@ -10,8 +10,8 @@ This document describes the complete system architecture for Cheque.dev, includi
 
 ## 1.1 Student App (Cheque Student)
 Runs everywhere:
-- Fully offline native apps
-- PWA installed offline
+- Offline-first native apps (with optional cloud sync)
+- Works as an installable PWA on Chromebooks (required for many schools)
 - Full in-browser web version (online only)
 
 ### Technologies
@@ -311,11 +311,21 @@ Handled entirely by @cheque/web-course-pack-loader:
 - No installation required  
 - Cloud sync only  
 
-## 8.2 PWA Version
-- Installable  
-- Offline support  
-- LAN sync (with Capacitor bridge)  
-- SQLite native engine where supported  
+## 8.2 PWA Version (Critical for Chromebook Support)
+The PWA exists primarily to support schools that use Chromebooks.
+
+ChromeOS does not allow installing native apps, but PWAs:
+- can be installed as standalone applications
+- work offline using service workers
+- store data in SQLite WASM + OPFS
+- support the full Cheque experience in a browser-controlled environment
+
+Limitations:
+- No LAN sync (browsers cannot run native Capacitor plugins)
+- No native SQLite engine (uses SQLite WASM instead)
+- No access to native filesystem or network APIs
+
+The PWA is ideal for Chromebook-heavy deployments, while native apps provide the full offline + LAN sync experience. 
 
 ## 8.3 Native App Version
 - Full offline-first  
