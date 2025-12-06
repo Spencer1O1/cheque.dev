@@ -209,7 +209,7 @@ flowchart TB
 # Subcharts (Simplified Views)
 
 <details>
-  <summary><strong>Toggle</strong><h2>1 — Client Applications Overview</h2></summary>
+  <summary><h2>1 — Client Applications Overview</h2></summary>
 
 ```mermaid
 
@@ -246,7 +246,7 @@ flowchart LR
 </details>
 
 <details>
-  <summary><strong>Toggle</strong><h2>2 - Local Runtime Layer</h2></summary>
+  <summary><h2>2 - Local Runtime Layer</h2></summary>
 
 ```mermaid
 
@@ -271,7 +271,7 @@ flowchart LR
 </details>
 
 <details>
-  <summary><strong>Toggle</strong><h2>3 - Course Pack Pipeline</h2></summary>
+  <summary><h2>3 - Course Pack Pipeline</h2></summary>
 
 ```mermaid
 
@@ -293,7 +293,7 @@ flowchart LR
 </details>
 
 <details>
-  <summary><strong>Toggle</strong><h2>4 - Sync System Modes</h2></summary>
+  <summary><h2>4 - Sync System Modes</h2></summary>
 
 ```mermaid
 
@@ -317,7 +317,7 @@ flowchart TB
 </details>
 
 <details>
-  <summary><strong>Toggle</strong><h2>5 - Convex Cloud Layer (Online)</h2></summary>
+  <summary><h2>5 - Convex Cloud Layer (Online)</h2></summary>
 
 ```mermaid
 
@@ -348,7 +348,7 @@ flowchart LR
 </details>
 
 <details>
-  <summary><strong>Toggle</strong><h2>6 - Student Publishing Flow (Public Webpages)</h2></summary>
+  <summary><h2>6 - Student Publishing Flow (Public Webpages)</h2></summary>
 
 ```mermaid
 
