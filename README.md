@@ -59,6 +59,22 @@ Unlike closed educational platforms:
 - Anyone can contribute to the teacher dashboard  
 - Anyone can adapt Cheque for their region  
 
+### 🔹 Students Can Build Their Own Real Webpages
+
+One of the most powerful ways to learn programming is by building something real.
+Cheque allows every student to create their own personal webpage, such as spencer-smith.cheque.dev
+
+This feature is designed to give students real-world, portfolio-ready experience, not just abstract exercises.
+
+Students can:
+- Build their webpage using blocks, real HTML/CSS/JS, or both
+- Instantly switch between English ↔ Spanish descriptions of all concepts
+- Edit and preview their site fully offline
+- Publish their page (when online)
+- Iterate on their design over time as their skills grow
+
+This bridges the gap between learning concepts and building real projects they can proudly share — even from low-resource environments.
+
 ---
 
 ## 🧩 Why Cheque Is Necessary

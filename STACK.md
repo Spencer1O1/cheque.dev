@@ -60,7 +60,7 @@ flowchart TB
         LE1["Lesson Engine"]
         LE2["JS Runtime</br>(Web Worker Sandbox)"]
         LE3["Python Runtime</br>(Pyodide Worker)"]
-        LE4["HTML/CSS Project Renderer</br>(iframe sandbox)"]
+        LE4["HTML/CSS/JS Project Renderer</br>(iframe sandbox)"]
     end
     class LocalEngines runtime
 
@@ -256,14 +256,14 @@ flowchart LR
     LE1["Lesson Engine"]:::runtime
     LE2["JS Runtime (Web Worker)"]:::runtime
     LE3["Python Runtime (Pyodide)"]:::runtime
-    LE4["HTML/CSS Renderer (iframe)"]:::runtime
+    LE4["HTML/CSS/JS Renderer (iframe)"]:::runtime
 
     DB["Local Database (SQLite Native / SQLite WASM)"]
 
     LE1 --> DB
     LE2 -->|"Reads project files"| DB
     LE3 -->|"Loads Python tests"| DB
-    LE4 -->|"Loads HTML/CSS"| DB
+    LE4 -->|"Loads HTML/CSS/JS"| DB
 
 
 ```
@@ -467,7 +467,7 @@ Shared localization setup using i18next.
 ## 2.3 @cheque/blocks
 Custom Blockly blocks and JS/Python generators.
 Supports custom block categories for generating HTML and CSS for 
-student web projects. HTML/CSS is compiled into project files that 
+student web projects. HTML/CSS/JS is compiled into project files that 
 can be previewed locally and published online.
 
 ## 2.4 @cheque/lesson-engine
@@ -730,7 +730,7 @@ Cheque supports optional public-facing student webpages such as:
 These pages are generated from projects created inside the Cheque environment.
 
 ## Project Flow
-1. Student builds project using custom HTML/CSS blocks and/or Monaco.
+1. Student builds project using custom HTML/CSS/JS blocks and/or Monaco.
 2. Project files are stored locally in SQLite.
 3. If online, project files sync to Convex.
 4. Next.js renders webpages dynamically under the route /[studentHandle].

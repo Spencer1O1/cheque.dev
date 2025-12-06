@@ -58,6 +58,22 @@ La comunidad puede:
 - Extender el soporte a nuevos lenguajes  
 - Adaptar Cheque a distintas regiones  
 
+### 🔹 Los estudiantes pueden crear su propia página web real
+
+Una de las formas más poderosas de aprender programación es construyendo algo real.
+Cheque permite que cada estudiante cree su propia página web personal, por ejemplo spencer-smith.cheque.dev
+
+Esta función está diseñada para ofrecer a los estudiantes experiencia real y lista para portafolios, no solo ejercicios abstractos.
+
+Los estudiantes pueden:
+- Construir su página usando bloques, HTML/CSS/JS real, o ambos
+- Cambiar instantáneamente entre descripciones en español ↔ inglés
+- Editar y previsualizar su sitio completamente sin conexión
+- Publicar su página (cuando haya conexión) en un subdominio
+- Iterar y mejorar su diseño a medida que avanzan en sus habilidades
+
+Esto cierra la brecha entre aprender conceptos y crear proyectos reales que pueden compartir con orgullo, incluso en entornos con recursos limitados.
+
 ---
 
 ## 🧩 Por Qué Cheque Es Necesario
