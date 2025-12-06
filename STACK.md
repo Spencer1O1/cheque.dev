@@ -2,7 +2,7 @@
 ✅ CHEQUE Technical Stack  
 Local-first, offline-capable, and fully functional in a standard web browser.
 
-This document describes the complete system architecture for Cheque.dev, including the student app, teacher app, offline runtime, web runtime, local database, syncing, course packs, backend (optional), and development infrastructure.
+This document describes the complete system architecture for Cheque.dev, including the student app, teacher app, offline runtime, web runtime, local database, syncing, course packs, and development infrastructure.
 
 ---
 
@@ -92,9 +92,9 @@ flowchart TB
     %% ========================
 
     subgraph SyncSystem["Sync System"]
-        SY1["Student → Teacher</br>LAN / WebRTC Sync"]
-        SY2["Teacher → Cloud</br>Sync Adapter"]
-        SY3["Browser → Cloud</br>Convex API"]
+        SY1["Student → Teacher Offline Sync</br>(LAN / WebRTC Sync)"]
+        SY2["Teacher Online Sync</br>(Sync Adapter)"]
+        SY3["Browser Online Sync</br>(Convex API)"]
         SY4["Sync Merge Engine</br>(Conflict Resolution)"]
     end
     class SyncSystem sync
@@ -103,7 +103,7 @@ flowchart TB
     %% BACKEND
     %% ========================
 
-    subgraph ConvexCloud["Convex Cloud (Optional)"]
+    subgraph ConvexCloud["Convex Cloud (Online)"]
         C1["User Accounts</br>Teacher / Admin"]
         C2["Course Pack Metadata</br>+ Downloads"]
         C3["Assignments & Classes"]
@@ -219,7 +219,7 @@ flowchart LR
 
     A1["Native App (Android/iOS/Desktop)"]:::app
     A2["PWA (Chromebooks)"]:::app
-    A3["Web Browser (Online Only)"]:::app
+    A3["Web Browser"]:::app
 
     DB1["SQLite Native"]:::app
     DB2["SQLite WASM"]:::app
@@ -306,7 +306,7 @@ flowchart TB
 
 ```
 
-# 5 - Optional Convex Cloud Layer
+# 5 - Convex Cloud Layer (Online)
 
 ```mermaid
 
@@ -360,7 +360,7 @@ flowchart LR
 
 ## 1.1 Student App (Cheque Student)
 Runs everywhere:
-- Offline-first native apps (with optional cloud sync)
+- Offline-first native apps (with cloud sync online)
 - Works as an installable PWA on Chromebooks (required for many schools)
 - Full in-browser web version (online only)
 
@@ -388,7 +388,7 @@ Runs everywhere:
 - Local code execution (JS, Python)
 - Local progress tracking
 - LAN/USB sync (native/PWA)
-- Cloud sync (browser/native) via optional Convex layer
+- Cloud sync (browser/native) via Convex layer
 
 ---
 
@@ -402,7 +402,7 @@ Acts as the "local server" in offline schools.
 - i18next  
 - SQLite + Drizzle ORM  
 - WebRTC/WebSocket LAN sync server (native apps only) 
-- Optional Convex sync adapter  
+- Convex sync adapter (online)
 
 ### Responsibilities
 - Manage students and classes  
@@ -421,7 +421,7 @@ Runs online only.
 - Next.js (web)  
 - React + TypeScript  
 - Tailwind CSS  
-- Convex backend  
+- Convex backend (online-only)
 - Monaco Editor (authoring autograder code)  
 - Course pack builder and publisher  
 
@@ -479,8 +479,9 @@ SQLite WASM + OPFS or IndexedDB handling for the browser.
 
 ## 2.9 @cheque/sync
 Implements:
-- student → teacher offline sync  
-- teacher → cloud sync  
+- student → teacher (offline LAN/WebRTC)
+- teacher → cloud (online)
+- browser → cloud (online)
 - timestamp-based conflict resolution  
 - sync pack creation and merging  
 
@@ -586,9 +587,9 @@ The browser cannot act as a WebRTC/WebSocket server, so LAN sync does not exist 
 
 ---
 
-# 5. Backend (Optional Cloud Layer)
+# 5. Backend (Online Cloud Layer)
 
-Convex acts as the optional online backend.
+Convex acts as the online backend.
 
 ## Responsibilities
 - Online teacher/admin accounts  
@@ -649,7 +650,7 @@ Handled entirely by @cheque/web-course-pack-loader:
 | Course Pack Import | Yes | Yes | Yes (via loader) |
 | Offline Support | Yes | Yes | Limited (requires PWA install) |
 | LAN Sync | Yes | No | No |
-| Cloud Sync | Optional | Optional | Yes |
+| Cloud Sync | Online | Online | Yes |
 | Teacher Dashboard | Local or Cloud | Local or Cloud | Cloud |
 
 ---
@@ -702,8 +703,9 @@ Core components:
 - SQLite (native or WASM)  
 - Web Course Pack Loader  
 - Local lesson engine  
-- Offline or cloud sync  
-- Optional Convex online backend  
+- Offline sync (student -> teacher)
+- Offline sync (teacher / browser -> cloud)
+- Convex backend (online-only)  
 
 # 10. Student Webpages (Publishing System)
 
