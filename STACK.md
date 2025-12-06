@@ -581,3 +581,150 @@ flowchart TB
     %% Cloud → Public Webpages
     ConvexCloud --> PW1
     PW1 --> PW2
+```
+
+# Subcharts (Simplified Views)
+
+## 1 — Client Applications Overview
+
+```mermaid
+
+flowchart LR
+    classDef app fill:#2d3748,stroke:#e2e8f0,color:white
+
+    A1["Native App (Android/iOS/Desktop)"]:::app
+    A2["PWA (Chromebooks)"]:::app
+    A3["Web Browser (Online Only)"]:::app
+
+    DB1["SQLite Native"]:::app
+    DB2["SQLite WASM"]:::app
+
+    SY1["LAN Sync (Native Only)"]:::app
+    SY2["Cloud Sync (Native/PWA)"]:::app
+    SY3["Cloud Sync (Browser)"]:::app
+
+    A1 --> DB1
+    A1 --> SY1
+    A1 --> SY2
+
+    A2 --> DB2
+    A2 --> SY2
+
+    A3 --> DB2
+    A3 --> SY3
+
+    %% Optional dotted clarification
+    A2 -. "No LAN Sync" .- SY1
+    A3 -. "No LAN Sync" .- SY1
+
+```
+
+# 2 - Local Runtime Layer
+
+```mermaid
+
+flowchart LR
+    classDef runtime fill:#4a5568,stroke:#e2e8f0,color:white
+
+    LE1["Lesson Engine"]:::runtime
+    LE2["JS Runtime (Web Worker)"]:::runtime
+    LE3["Python Runtime (Pyodide)"]:::runtime
+    LE4["HTML/CSS Renderer (iframe)"]:::runtime
+
+    DB["Local Database (SQLite Native / SQLite WASM)"]
+
+    LE1 --> DB
+    LE2 -->|"Reads project files"| DB
+    LE3 -->|"Loads Python tests"| DB
+    LE4 -->|"Loads HTML/CSS"| DB
+
+
+```
+
+# 3 - Course Pack Pipeline
+
+```mermaid
+
+flowchart LR
+    classDef pack fill:#805ad5,stroke:#d6bcfa,color:white
+
+    CP1["Native File Import"]:::pack
+    CP2["Web Loader (JSZip + OPFS)"]:::pack
+    CPV["Content Schema Validator"]:::pack
+
+    DB["SQLite (Native / WASM)"]
+
+    CP1 --> CPV
+    CP2 --> CPV
+    CPV -->|"Stores lessons, metadata, assets"| DB
+
+```
+
+# 4 - Sync System Modes
+
+```mermaid
+
+flowchart TB
+    classDef sync fill:#6b46c1,stroke:#d6bcfa,color:white
+
+    S1["Student → Teacher (LAN/WebRTC)"]:::sync
+    S2["Teacher → Cloud (Sync Adapter)"]:::sync
+    S3["Browser → Cloud (Convex API)"]:::sync
+    M["Sync Merge Engine"]:::sync
+
+    Local["Local Database (SQLite)"]
+
+    S1 --> M
+    S2 --> M
+    S3 --> M
+    M --> Local
+
+```
+
+# 5 - Optional Convex Cloud Layer
+
+```mermaid
+
+flowchart LR
+    classDef cloud fill:#2f855a,stroke:#9ae6b4,color:white
+
+    C1["User Accounts"]:::cloud
+    C2["Course Pack Metadata<br/>+ Downloads"]:::cloud
+    C3["Assignments & Classes"]:::cloud
+    C4["Realtime Dashboards"]:::cloud
+    C5["Student Progress Store"]:::cloud
+    C6["Student Webpage Files<br/>(HTML/CSS/JS)"]:::cloud
+    PW["Public Webpages"]:::cloud
+
+    %% Dashboard reads all the data it needs
+    C1 --> C4
+    C3 --> C4
+    C5 --> C4
+
+    %% Course pack metadata supports dashboard + public resources
+    C2 --> C4
+
+    %% Webpage files feed public renderer
+    C6 --> PW
+
+
+
+```
+
+# 6 - Student Publishing Flow (Public Webpages)
+
+```mermaid
+
+flowchart LR
+    classDef public fill:#b7791f,stroke:#fbd38d,color:white
+
+    A["Student Project (HTML/CSS/JS)"]:::public
+    B["Convex Storage"]:::public
+    C["Next.js Renderer (SSR / ISR)"]:::public
+    D["Public URL<br/>username.cheque.dev"]:::public
+
+    A -->|"Sync when online"| B
+    B --> C
+    C --> D
+
+```
