@@ -26,7 +26,7 @@ Runs everywhere:
 - JavaScript sandbox (Web Worker)  
 - SQLite  
   - Native SQLite (mobile/desktop via Capacitor)
-  - SQLite WASM (web browser)  
+  - SQLite WASM (browser + PWA)
 - Drizzle ORM  
 - Service Worker + Workbox (PWA)  
 - Zustand or Jotai (UI state)  
@@ -219,7 +219,7 @@ Cheque supports three modes:
 
 ## 4.1 Fully Offline Schools
 - Student → Teacher sync only  
-- LAN/WebRTC/PWA-native sync  
+- LAN/WebRTC native sync (native apps only)
 - No cloud involvement  
 
 ## 4.2 Occasionally Connected Schools
@@ -511,6 +511,10 @@ flowchart TB
     TA1 --> AUTH1
     TA2 --> AUTH1
 
+    %% Teacher App -> Course Packs
+    TA1 --> CP1
+    TA2 --> CP2
+
     %% Student App → DB
     SA1 --> DB1
     SA2 --> DB2
@@ -562,13 +566,17 @@ flowchart TB
     SY1 --> SY4
     SY2 --> SY4
     SY3 --> SY4
+    SY4 --> LocalDB
 
     %% Cloud connections
     SY2 --> ConvexCloud
     SY3 --> ConvexCloud
 
     %% Admin Dashboard → Cloud
-    AD1 --> ConvexCloud
+    AD1 --> C1
+    AD1 --> C2
+    AD1 --> C3
+    AD1 --> C4
 
     %% Cloud → Public Webpages
     ConvexCloud --> PW1
