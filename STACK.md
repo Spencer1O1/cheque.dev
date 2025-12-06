@@ -92,7 +92,7 @@ Runs online only.
 - @cheque/content-schema
 - @cheque/auth-local
 - @cheque/web-course-pack-loader
-
+- @cheque/web-projects  
 
 ## 2.1 @cheque/ui
 Shared components, layout primitives, and styling.
@@ -102,6 +102,9 @@ Shared localization setup using i18next.
 
 ## 2.3 @cheque/blocks
 Custom Blockly blocks and JS/Python generators.
+Supports custom block categories for generating HTML and CSS for 
+student web projects. HTML/CSS is compiled into project files that 
+can be previewed locally and published online.
 
 ## 2.4 @cheque/lesson-engine
 Loads, evaluates, and navigates lessons. Works offline.
@@ -139,6 +142,10 @@ PIN-based local authentication system for offline schools.
 
 ## 2.12 @cheque/web-course-pack-loader
 Allows `.cheque` course packs to be loaded directly in the browser.
+
+## 2.13 @cheque/web-projects
+Handles HTML/CSS/JS student projects, Blockly → code generation, 
+browser previews, syncing, and publishing artifacts.
 
 Responsibilities:
 - Download pack from Convex/CDN
@@ -239,7 +246,10 @@ Convex acts as the optional online backend.
 - Assignments  
 - Student progress aggregation  
 - Real-time dashboards  
-- Version distribution  
+- Version distribution
+- Student project storage for public webpages (HTML/CSS/JS)
+- Management of public student handles (e.g., /spencer-smith)
+- Providing project data to Next.js for rendering public webpages
 
 Convex is not required for offline-only deployments.
 
@@ -334,6 +344,29 @@ Core components:
 - Local lesson engine  
 - Offline or cloud sync  
 - Optional Convex online backend  
+
+# 10. Student Webpages (Publishing System)
+
+Cheque supports optional public-facing student webpages such as:
+
+  username.cheque.dev
+
+These pages are generated from projects created inside the Cheque environment.
+
+## Project Flow
+1. Student builds project using custom HTML/CSS blocks and/or Monaco.
+2. Project files are stored locally in SQLite.
+3. If online, project files sync to Convex.
+4. Next.js renders webpages dynamically under the route /[studentHandle].
+
+## Rendering
+- Dynamic SSR via Next.js
+- Optional static generation for performance
+- Asset hosting via Convex file storage
+
+## Offline Behavior
+- Students may edit projects offline.
+- Publishing requires an online session.
 
 This architecture ensures Cheque works everywhere:  
 from offline village schools to fully connected web deployments.
