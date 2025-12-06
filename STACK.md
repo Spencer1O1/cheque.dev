@@ -403,15 +403,15 @@ flowchart TB
     %% ========================
 
     subgraph StudentApp["Student App"]
-        SA1["Native App\n(Android / iOS / Desktop)"]
-        SA2["PWA\n(Chromebooks)"]
-        SA3["Web Browser\n(Online Only)"]
+        SA1["Native App</br>(Android / iOS / Desktop)"]
+        SA2["PWA</br>(Chromebooks)"]
+        SA3["Web Browser</br>(Online Only)"]
     end
     class StudentApp app
 
     subgraph TeacherApp["Teacher App"]
-        TA1["Native App\n(LAN Sync Host)"]
-        TA2["PWA\n(Limited)"]
+        TA1["Native App</br>(LAN Sync Host)"]
+        TA2["PWA</br>(Limited)"]
     end
     class TeacherApp app
 
@@ -425,7 +425,7 @@ flowchart TB
     %% ========================
 
     subgraph Auth["Local Authentication"]
-        AUTH1["PIN-based Login\n(@cheque/auth-local)"]
+        AUTH1["PIN-based Login</br>(@cheque/auth-local)"]
     end
     class Auth auth
 
@@ -435,9 +435,9 @@ flowchart TB
 
     subgraph LocalEngines["Local Runtime Layer"]
         LE1["Lesson Engine"]
-        LE2["JS Runtime\n(Web Worker Sandbox)"]
-        LE3["Python Runtime\n(Pyodide Worker)"]
-        LE4["HTML/CSS Project Renderer\n(iframe sandbox)"]
+        LE2["JS Runtime</br>(Web Worker Sandbox)"]
+        LE3["Python Runtime</br>(Pyodide Worker)"]
+        LE4["HTML/CSS Project Renderer</br>(iframe sandbox)"]
     end
     class LocalEngines runtime
 
@@ -446,8 +446,8 @@ flowchart TB
     %% ========================
 
     subgraph LocalDB["Local Database Layer"]
-        DB1["SQLite Native\nvia Capacitor"]
-        DB2["SQLite WASM\nvia OPFS / IndexedDB"]
+        DB1["SQLite Native</br>via Capacitor"]
+        DB2["SQLite WASM</br>via OPFS / IndexedDB"]
     end
     class LocalDB db
 
@@ -457,8 +457,8 @@ flowchart TB
 
     subgraph CoursePacks["Course Packs (.cheque)"]
         CP1["Native File Import"]
-        CP2["Web Loader\n(JSZip + OPFS)"]
-        CPV["Content Schema Validator\n(@cheque/content-schema)"]
+        CP2["Web Loader</br>(JSZip + OPFS)"]
+        CPV["Content Schema Validator</br>(@cheque/content-schema)"]
     end
     class CoursePacks pack
 
@@ -467,10 +467,10 @@ flowchart TB
     %% ========================
 
     subgraph SyncSystem["Sync System"]
-        SY1["Student → Teacher\nLAN / WebRTC Sync"]
-        SY2["Teacher → Cloud\nSync Adapter"]
-        SY3["Browser → Cloud\nConvex API"]
-        SY4["Sync Merge Engine\n(Conflict Resolution)"]
+        SY1["Student → Teacher</br>LAN / WebRTC Sync"]
+        SY2["Teacher → Cloud</br>Sync Adapter"]
+        SY3["Browser → Cloud</br>Convex API"]
+        SY4["Sync Merge Engine</br>(Conflict Resolution)"]
     end
     class SyncSystem sync
 
@@ -479,12 +479,12 @@ flowchart TB
     %% ========================
 
     subgraph ConvexCloud["Convex Cloud (Optional)"]
-        C1["User Accounts\nTeacher / Admin"]
-        C2["Course Pack Metadata\n+ Downloads"]
+        C1["User Accounts</br>Teacher / Admin"]
+        C2["Course Pack Metadata</br>+ Downloads"]
         C3["Assignments & Classes"]
         C4["Realtime Dashboards"]
         C5["Student Progress Store"]
-        C6["Student Webpages Data\n(HTML/CSS/JS)"]
+        C6["Student Webpages Data</br>(HTML/CSS/JS)"]
     end
     class ConvexCloud cloud
 
