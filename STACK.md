@@ -6,6 +6,356 @@ This document describes the complete system architecture for Cheque.dev, includi
 
 ---
 
+# Architecture Diagram
+
+``` mermaid
+
+flowchart TB
+    %% ========================
+    %% COLOR DEFINITIONS
+    %% ========================
+    classDef app fill:#2d3748,stroke:#e2e8f0,color:white
+    classDef runtime fill:#4a5568,stroke:#e2e8f0,color:white
+    classDef db fill:#2b6cb0,stroke:#bee3f8,color:white
+    classDef sync fill:#6b46c1,stroke:#d6bcfa,color:white
+    classDef cloud fill:#2f855a,stroke:#9ae6b4,color:white
+    classDef public fill:#b7791f,stroke:#fbd38d,color:white
+    classDef pack fill:#805ad5,stroke:#d6bcfa,color:white
+    classDef auth fill:#b83280,stroke:#fbb6ce,color:white
+
+    %% ========================
+    %% CLIENT APPLICATIONS
+    %% ========================
+
+    subgraph StudentApp["Student App"]
+        SA1["Native App</br>(Android / iOS / Desktop)"]
+        SA2["PWA</br>(Chromebooks)"]
+        SA3["Web Browser</br>(Online Only)"]
+    end
+    class StudentApp app
+
+    subgraph TeacherApp["Teacher App"]
+        TA1["Native App</br>(LAN Sync Host)"]
+        TA2["PWA</br>(Limited)"]
+    end
+    class TeacherApp app
+
+    subgraph AdminDashboard["Admin / Authoring Dashboard"]
+        AD1["Next.js Web App"]
+    end
+    class AdminDashboard app
+
+    %% ========================
+    %% AUTH
+    %% ========================
+
+    subgraph Auth["Local Authentication"]
+        AUTH1["PIN-based Login</br>(@cheque/auth-local)"]
+    end
+    class Auth auth
+
+    %% ========================
+    %% LOCAL RUNTIME
+    %% ========================
+
+    subgraph LocalEngines["Local Runtime Layer"]
+        LE1["Lesson Engine"]
+        LE2["JS Runtime</br>(Web Worker Sandbox)"]
+        LE3["Python Runtime</br>(Pyodide Worker)"]
+        LE4["HTML/CSS Project Renderer</br>(iframe sandbox)"]
+    end
+    class LocalEngines runtime
+
+    %% ========================
+    %% DATABASES
+    %% ========================
+
+    subgraph LocalDB["Local Database Layer"]
+        DB1["SQLite Native</br>via Capacitor"]
+        DB2["SQLite WASM</br>via OPFS / IndexedDB"]
+    end
+    class LocalDB db
+
+    %% ========================
+    %% COURSE PACKS
+    %% ========================
+
+    subgraph CoursePacks["Course Packs (.cheque)"]
+        CP1["Native File Import"]
+        CP2["Web Loader</br>(JSZip + OPFS)"]
+        CPV["Content Schema Validator</br>(@cheque/content-schema)"]
+    end
+    class CoursePacks pack
+
+    %% ========================
+    %% SYNC SYSTEM
+    %% ========================
+
+    subgraph SyncSystem["Sync System"]
+        SY1["Student → Teacher</br>LAN / WebRTC Sync"]
+        SY2["Teacher → Cloud</br>Sync Adapter"]
+        SY3["Browser → Cloud</br>Convex API"]
+        SY4["Sync Merge Engine</br>(Conflict Resolution)"]
+    end
+    class SyncSystem sync
+
+    %% ========================
+    %% BACKEND
+    %% ========================
+
+    subgraph ConvexCloud["Convex Cloud (Optional)"]
+        C1["User Accounts</br>Teacher / Admin"]
+        C2["Course Pack Metadata</br>+ Downloads"]
+        C3["Assignments & Classes"]
+        C4["Realtime Dashboards"]
+        C5["Student Progress Store"]
+        C6["Student Webpages Data</br>(HTML/CSS/JS)"]
+    end
+    class ConvexCloud cloud
+
+    %% ========================
+    %% PUBLIC WEBPAGES
+    %% ========================
+
+    subgraph PublicWebpages["Public Student Webpages"]
+        PW1["Next.js SSR / ISR Renderer"]
+        PW2["username.cheque.dev"]
+    end
+    class PublicWebpages public
+
+    %% ========================
+    %% CONNECTIONS
+    %% ========================
+
+    %% Student App → Auth
+    SA1 --> AUTH1
+    SA2 --> AUTH1
+    SA3 --> AUTH1
+
+    %% Teacher App → Auth
+    TA1 --> AUTH1
+    TA2 --> AUTH1
+
+    %% Teacher App -> Course Packs
+    TA1 --> CP1
+    TA2 --> CP2
+
+    %% Student App → DB
+    SA1 --> DB1
+    SA2 --> DB2
+    SA3 --> DB2
+
+    %% Student App → Course Packs
+    SA1 --> CP1
+    SA2 --> CP2
+    SA3 --> CP2
+
+    %% Course Packs Validator
+    CP1 --> CPV
+    CP2 --> CPV
+    CPV --> LocalDB
+    CPV --> LocalEngines
+
+    %% Student App → Engines
+    SA1 --> LE1
+    SA1 --> LE2
+    SA1 --> LE3
+    SA1 --> LE4
+    SA2 --> LE1
+    SA2 --> LE2
+    SA2 --> LE3
+    SA2 --> LE4
+    SA3 --> LE1
+    SA3 --> LE2
+    SA3 --> LE3
+    SA3 --> LE4
+
+    %% Student LAN Sync
+    SA1 --> SY1
+    SA2 -. No LAN Sync .- SY1
+    SA3 -. Browser Cannot Sync LAN .- SY1
+
+    %% Student Cloud Sync
+    SA1 --> SY2
+    SA2 --> SY2
+    SA3 --> SY3
+
+    %% Teacher App
+    TA1 --> DB1
+    TA2 --> DB2
+    TA1 --> SY1
+    TA1 --> SY2
+    TA2 --> SY2
+
+    %% Sync Merge Engine
+    SY1 --> SY4
+    SY2 --> SY4
+    SY3 --> SY4
+    SY4 --> LocalDB
+
+    %% Cloud connections
+    SY2 --> ConvexCloud
+    SY3 --> ConvexCloud
+
+    %% Admin Dashboard → Cloud
+    AD1 --> C1
+    AD1 --> C2
+    AD1 --> C3
+    AD1 --> C4
+
+    %% Cloud → Public Webpages
+    ConvexCloud --> PW1
+    PW1 --> PW2
+```
+
+# Subcharts (Simplified Views)
+
+## 1 — Client Applications Overview
+
+```mermaid
+
+flowchart LR
+    classDef app fill:#2d3748,stroke:#e2e8f0,color:white
+
+    A1["Native App (Android/iOS/Desktop)"]:::app
+    A2["PWA (Chromebooks)"]:::app
+    A3["Web Browser (Online Only)"]:::app
+
+    DB1["SQLite Native"]:::app
+    DB2["SQLite WASM"]:::app
+
+    SY1["LAN Sync (Native Only)"]:::app
+    SY2["Cloud Sync (Native/PWA)"]:::app
+    SY3["Cloud Sync (Browser)"]:::app
+
+    A1 --> DB1
+    A1 --> SY1
+    A1 --> SY2
+
+    A2 --> DB2
+    A2 --> SY2
+
+    A3 --> DB2
+    A3 --> SY3
+
+    %% Optional dotted clarification
+    A2 -. "No LAN Sync" .- SY1
+    A3 -. "No LAN Sync" .- SY1
+
+```
+
+# 2 - Local Runtime Layer
+
+```mermaid
+
+flowchart LR
+    classDef runtime fill:#4a5568,stroke:#e2e8f0,color:white
+
+    LE1["Lesson Engine"]:::runtime
+    LE2["JS Runtime (Web Worker)"]:::runtime
+    LE3["Python Runtime (Pyodide)"]:::runtime
+    LE4["HTML/CSS Renderer (iframe)"]:::runtime
+
+    DB["Local Database (SQLite Native / SQLite WASM)"]
+
+    LE1 --> DB
+    LE2 -->|"Reads project files"| DB
+    LE3 -->|"Loads Python tests"| DB
+    LE4 -->|"Loads HTML/CSS"| DB
+
+
+```
+
+# 3 - Course Pack Pipeline
+
+```mermaid
+
+flowchart LR
+    classDef pack fill:#805ad5,stroke:#d6bcfa,color:white
+
+    CP1["Native File Import"]:::pack
+    CP2["Web Loader (JSZip + OPFS)"]:::pack
+    CPV["Content Schema Validator"]:::pack
+
+    DB["SQLite (Native / WASM)"]
+
+    CP1 --> CPV
+    CP2 --> CPV
+    CPV -->|"Stores lessons, metadata, assets"| DB
+
+```
+
+# 4 - Sync System Modes
+
+```mermaid
+
+flowchart TB
+    classDef sync fill:#6b46c1,stroke:#d6bcfa,color:white
+
+    S1["Student → Teacher (LAN/WebRTC)"]:::sync
+    S2["Teacher → Cloud (Sync Adapter)"]:::sync
+    S3["Browser → Cloud (Convex API)"]:::sync
+    M["Sync Merge Engine"]:::sync
+
+    Local["Local Database (SQLite)"]
+
+    S1 --> M
+    S2 --> M
+    S3 --> M
+    M --> Local
+
+```
+
+# 5 - Optional Convex Cloud Layer
+
+```mermaid
+
+flowchart LR
+    classDef cloud fill:#2f855a,stroke:#9ae6b4,color:white
+
+    C1["User Accounts"]:::cloud
+    C2["Course Pack Metadata<br/>+ Downloads"]:::cloud
+    C3["Assignments & Classes"]:::cloud
+    C4["Realtime Dashboards"]:::cloud
+    C5["Student Progress Store"]:::cloud
+    C6["Student Webpage Files<br/>(HTML/CSS/JS)"]:::cloud
+    PW["Public Webpages"]:::cloud
+
+    %% Dashboard reads all the data it needs
+    C1 --> C4
+    C3 --> C4
+    C5 --> C4
+
+    %% Course pack metadata supports dashboard + public resources
+    C2 --> C4
+
+    %% Webpage files feed public renderer
+    C6 --> PW
+
+
+
+```
+
+# 6 - Student Publishing Flow (Public Webpages)
+
+```mermaid
+
+flowchart LR
+    classDef public fill:#b7791f,stroke:#fbd38d,color:white
+
+    A["Student Project (HTML/CSS/JS)"]:::public
+    B["Convex Storage"]:::public
+    C["Next.js Renderer (SSR / ISR)"]:::public
+    D["Public URL<br/>username.cheque.dev"]:::public
+
+    A -->|"Sync when online"| B
+    B --> C
+    C --> D
+
+```
+
+---
+
 # 1. Applications
 
 ## 1.1 Student App (Cheque Student)
@@ -380,351 +730,3 @@ These pages are generated from projects created inside the Cheque environment.
 
 This architecture ensures Cheque works everywhere:  
 from offline village schools to fully connected web deployments.
-
-# Architecture Diagram
-
-``` mermaid
-
-flowchart TB
-    %% ========================
-    %% COLOR DEFINITIONS
-    %% ========================
-    classDef app fill:#2d3748,stroke:#e2e8f0,color:white
-    classDef runtime fill:#4a5568,stroke:#e2e8f0,color:white
-    classDef db fill:#2b6cb0,stroke:#bee3f8,color:white
-    classDef sync fill:#6b46c1,stroke:#d6bcfa,color:white
-    classDef cloud fill:#2f855a,stroke:#9ae6b4,color:white
-    classDef public fill:#b7791f,stroke:#fbd38d,color:white
-    classDef pack fill:#805ad5,stroke:#d6bcfa,color:white
-    classDef auth fill:#b83280,stroke:#fbb6ce,color:white
-
-    %% ========================
-    %% CLIENT APPLICATIONS
-    %% ========================
-
-    subgraph StudentApp["Student App"]
-        SA1["Native App</br>(Android / iOS / Desktop)"]
-        SA2["PWA</br>(Chromebooks)"]
-        SA3["Web Browser</br>(Online Only)"]
-    end
-    class StudentApp app
-
-    subgraph TeacherApp["Teacher App"]
-        TA1["Native App</br>(LAN Sync Host)"]
-        TA2["PWA</br>(Limited)"]
-    end
-    class TeacherApp app
-
-    subgraph AdminDashboard["Admin / Authoring Dashboard"]
-        AD1["Next.js Web App"]
-    end
-    class AdminDashboard app
-
-    %% ========================
-    %% AUTH
-    %% ========================
-
-    subgraph Auth["Local Authentication"]
-        AUTH1["PIN-based Login</br>(@cheque/auth-local)"]
-    end
-    class Auth auth
-
-    %% ========================
-    %% LOCAL RUNTIME
-    %% ========================
-
-    subgraph LocalEngines["Local Runtime Layer"]
-        LE1["Lesson Engine"]
-        LE2["JS Runtime</br>(Web Worker Sandbox)"]
-        LE3["Python Runtime</br>(Pyodide Worker)"]
-        LE4["HTML/CSS Project Renderer</br>(iframe sandbox)"]
-    end
-    class LocalEngines runtime
-
-    %% ========================
-    %% DATABASES
-    %% ========================
-
-    subgraph LocalDB["Local Database Layer"]
-        DB1["SQLite Native</br>via Capacitor"]
-        DB2["SQLite WASM</br>via OPFS / IndexedDB"]
-    end
-    class LocalDB db
-
-    %% ========================
-    %% COURSE PACKS
-    %% ========================
-
-    subgraph CoursePacks["Course Packs (.cheque)"]
-        CP1["Native File Import"]
-        CP2["Web Loader</br>(JSZip + OPFS)"]
-        CPV["Content Schema Validator</br>(@cheque/content-schema)"]
-    end
-    class CoursePacks pack
-
-    %% ========================
-    %% SYNC SYSTEM
-    %% ========================
-
-    subgraph SyncSystem["Sync System"]
-        SY1["Student → Teacher</br>LAN / WebRTC Sync"]
-        SY2["Teacher → Cloud</br>Sync Adapter"]
-        SY3["Browser → Cloud</br>Convex API"]
-        SY4["Sync Merge Engine</br>(Conflict Resolution)"]
-    end
-    class SyncSystem sync
-
-    %% ========================
-    %% BACKEND
-    %% ========================
-
-    subgraph ConvexCloud["Convex Cloud (Optional)"]
-        C1["User Accounts</br>Teacher / Admin"]
-        C2["Course Pack Metadata</br>+ Downloads"]
-        C3["Assignments & Classes"]
-        C4["Realtime Dashboards"]
-        C5["Student Progress Store"]
-        C6["Student Webpages Data</br>(HTML/CSS/JS)"]
-    end
-    class ConvexCloud cloud
-
-    %% ========================
-    %% PUBLIC WEBPAGES
-    %% ========================
-
-    subgraph PublicWebpages["Public Student Webpages"]
-        PW1["Next.js SSR / ISR Renderer"]
-        PW2["username.cheque.dev"]
-    end
-    class PublicWebpages public
-
-    %% ========================
-    %% CONNECTIONS
-    %% ========================
-
-    %% Student App → Auth
-    SA1 --> AUTH1
-    SA2 --> AUTH1
-    SA3 --> AUTH1
-
-    %% Teacher App → Auth
-    TA1 --> AUTH1
-    TA2 --> AUTH1
-
-    %% Teacher App -> Course Packs
-    TA1 --> CP1
-    TA2 --> CP2
-
-    %% Student App → DB
-    SA1 --> DB1
-    SA2 --> DB2
-    SA3 --> DB2
-
-    %% Student App → Course Packs
-    SA1 --> CP1
-    SA2 --> CP2
-    SA3 --> CP2
-
-    %% Course Packs Validator
-    CP1 --> CPV
-    CP2 --> CPV
-    CPV --> LocalDB
-    CPV --> LocalEngines
-
-    %% Student App → Engines
-    SA1 --> LE1
-    SA1 --> LE2
-    SA1 --> LE3
-    SA1 --> LE4
-    SA2 --> LE1
-    SA2 --> LE2
-    SA2 --> LE3
-    SA2 --> LE4
-    SA3 --> LE1
-    SA3 --> LE2
-    SA3 --> LE3
-    SA3 --> LE4
-
-    %% Student LAN Sync
-    SA1 --> SY1
-    SA2 -. No LAN Sync .- SY1
-    SA3 -. Browser Cannot Sync LAN .- SY1
-
-    %% Student Cloud Sync
-    SA1 --> SY2
-    SA2 --> SY2
-    SA3 --> SY3
-
-    %% Teacher App
-    TA1 --> DB1
-    TA2 --> DB2
-    TA1 --> SY1
-    TA1 --> SY2
-    TA2 --> SY2
-
-    %% Sync Merge Engine
-    SY1 --> SY4
-    SY2 --> SY4
-    SY3 --> SY4
-    SY4 --> LocalDB
-
-    %% Cloud connections
-    SY2 --> ConvexCloud
-    SY3 --> ConvexCloud
-
-    %% Admin Dashboard → Cloud
-    AD1 --> C1
-    AD1 --> C2
-    AD1 --> C3
-    AD1 --> C4
-
-    %% Cloud → Public Webpages
-    ConvexCloud --> PW1
-    PW1 --> PW2
-```
-
-# Subcharts (Simplified Views)
-
-## 1 — Client Applications Overview
-
-```mermaid
-
-flowchart LR
-    classDef app fill:#2d3748,stroke:#e2e8f0,color:white
-
-    A1["Native App (Android/iOS/Desktop)"]:::app
-    A2["PWA (Chromebooks)"]:::app
-    A3["Web Browser (Online Only)"]:::app
-
-    DB1["SQLite Native"]:::app
-    DB2["SQLite WASM"]:::app
-
-    SY1["LAN Sync (Native Only)"]:::app
-    SY2["Cloud Sync (Native/PWA)"]:::app
-    SY3["Cloud Sync (Browser)"]:::app
-
-    A1 --> DB1
-    A1 --> SY1
-    A1 --> SY2
-
-    A2 --> DB2
-    A2 --> SY2
-
-    A3 --> DB2
-    A3 --> SY3
-
-    %% Optional dotted clarification
-    A2 -. "No LAN Sync" .- SY1
-    A3 -. "No LAN Sync" .- SY1
-
-```
-
-# 2 - Local Runtime Layer
-
-```mermaid
-
-flowchart LR
-    classDef runtime fill:#4a5568,stroke:#e2e8f0,color:white
-
-    LE1["Lesson Engine"]:::runtime
-    LE2["JS Runtime (Web Worker)"]:::runtime
-    LE3["Python Runtime (Pyodide)"]:::runtime
-    LE4["HTML/CSS Renderer (iframe)"]:::runtime
-
-    DB["Local Database (SQLite Native / SQLite WASM)"]
-
-    LE1 --> DB
-    LE2 -->|"Reads project files"| DB
-    LE3 -->|"Loads Python tests"| DB
-    LE4 -->|"Loads HTML/CSS"| DB
-
-
-```
-
-# 3 - Course Pack Pipeline
-
-```mermaid
-
-flowchart LR
-    classDef pack fill:#805ad5,stroke:#d6bcfa,color:white
-
-    CP1["Native File Import"]:::pack
-    CP2["Web Loader (JSZip + OPFS)"]:::pack
-    CPV["Content Schema Validator"]:::pack
-
-    DB["SQLite (Native / WASM)"]
-
-    CP1 --> CPV
-    CP2 --> CPV
-    CPV -->|"Stores lessons, metadata, assets"| DB
-
-```
-
-# 4 - Sync System Modes
-
-```mermaid
-
-flowchart TB
-    classDef sync fill:#6b46c1,stroke:#d6bcfa,color:white
-
-    S1["Student → Teacher (LAN/WebRTC)"]:::sync
-    S2["Teacher → Cloud (Sync Adapter)"]:::sync
-    S3["Browser → Cloud (Convex API)"]:::sync
-    M["Sync Merge Engine"]:::sync
-
-    Local["Local Database (SQLite)"]
-
-    S1 --> M
-    S2 --> M
-    S3 --> M
-    M --> Local
-
-```
-
-# 5 - Optional Convex Cloud Layer
-
-```mermaid
-
-flowchart LR
-    classDef cloud fill:#2f855a,stroke:#9ae6b4,color:white
-
-    C1["User Accounts"]:::cloud
-    C2["Course Pack Metadata<br/>+ Downloads"]:::cloud
-    C3["Assignments & Classes"]:::cloud
-    C4["Realtime Dashboards"]:::cloud
-    C5["Student Progress Store"]:::cloud
-    C6["Student Webpage Files<br/>(HTML/CSS/JS)"]:::cloud
-    PW["Public Webpages"]:::cloud
-
-    %% Dashboard reads all the data it needs
-    C1 --> C4
-    C3 --> C4
-    C5 --> C4
-
-    %% Course pack metadata supports dashboard + public resources
-    C2 --> C4
-
-    %% Webpage files feed public renderer
-    C6 --> PW
-
-
-
-```
-
-# 6 - Student Publishing Flow (Public Webpages)
-
-```mermaid
-
-flowchart LR
-    classDef public fill:#b7791f,stroke:#fbd38d,color:white
-
-    A["Student Project (HTML/CSS/JS)"]:::public
-    B["Convex Storage"]:::public
-    C["Next.js Renderer (SSR / ISR)"]:::public
-    D["Public URL<br/>username.cheque.dev"]:::public
-
-    A -->|"Sync when online"| B
-    B --> C
-    C --> D
-
-```
