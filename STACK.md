@@ -660,7 +660,7 @@ Handled entirely by @cheque/web-course-pack-loader:
 | Monaco Editor | Yes | Yes | Yes |
 | Python Execution | Yes | Yes | Yes |
 | JS Sandbox | Yes | Yes | Yes |
-| SQLite | Native | Native | WASM |
+| SQLite | Native | WASM | WASM |
 | Course Pack Import | Yes | Yes | Yes (via loader) |
 | Offline Support | Yes | Yes | Limited (requires PWA install) |
 | LAN Sync | Yes | No | No |
