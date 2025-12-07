@@ -744,5 +744,150 @@ These pages are generated from projects created inside the Cheque environment.
 - Students may edit projects offline.
 - Publishing requires an online session.
 
+# 11. Code Sharing Model Across Platforms
+
+Cheque uses a single unified codebase (React + Next.js + TypeScript + monorepo packages), but runs inside three different runtime environments:
+- Native App Runtime (Capacitor WebView + native plugins)
+- PWA Runtime (Browser APIs + Service Worker + OPFS)
+- Online Browser Runtime (normal website tab, no installation)
+The table below shows what is shared and what differs between platforms.
+
+# 11.1 Shared Code Across All Platforms
+<h3>✔ Shared UI & Logic</h3>
+
+- React components
+- Next.js routes / pages
+- Tailwind styling
+- Blockly, Monaco
+- Local lesson engine
+- JS worker runtime
+- Python (Pyodide) runtime
+- All Cheque libraries (@cheque/*)
+- Sync merging logic
+- Drizzle ORM schema
+- Course pack schema + validation
+<h3>✔ Shared Data Model</h3>
+All platforms use the same Drizzle schema and the same data structures for:
+
+- lessons
+- exercises
+- progress tracking
+- project structures
+- sync metadata (timestamps, revisions, merges)
+<h3>✔ Shared Database Queries</h3>
+Although the underlying SQLite engine differs per platform, Cheque uses:
+
+- the same SQL tables
+- the same Drizzle queries
+- the same migration files
+# 11.2 Runtime Differences per Platform
+<h3>Native App Runtime (Capacitor)</h3>
+
+- Capacitor WebView
+- Native SQLite (fastest + largest storage)
+- Native filesystem access
+- Can host LAN/WebRTC sync server
+- Can run background tasks
+- Supports USB/Bluetooth peripherals (future expansions)
+
+Used when:
+
+- Schools operate fully offline
+- Devices allow app installation
+- Large course packs or heavy project assets are required
+
+<h3>PWA Runtime (Installed Browser App)</h3>
+
+- Browser WebView + Service Worker
+- SQLite WASM + OPFS persistent storage
+- Works offline after installation
+- Installable on Chromebooks
+- Cannot host LAN sync (browsers cannot open listening sockets)
+- Cannot access native filesystem or hardware plugins
+
+Used when:
+
+- Schools use Chromebooks
+- Installation through app stores is not allowed
+- A browser-only offline experience is required
+
+<h3>Online Browser Runtime (Non-PWA)</h3>
+
+- Normal website tab
+- No guaranteed persistence
+- No offline functionality
+- SQLite WASM only works partially unless installed as a PWA
+- Sync is cloud-only
+- Best used for dashboards, quick demos, teacher admin tools
+
+Used when:
+
+- A teacher or student is online
+- No install is needed
+- Persistence across refreshes is not required
+
+# 11.3 Why These Versions Exist
+
+<table>
+    <tr>
+        <th>Runtime</th>
+        <th>Purpose</th>
+    </tr>
+    <tr>
+        <td>Native</td>
+        <td>Full offline capability, LAN sync, heavy storage, mobile/desktop apps</td>
+    <tr>
+    <tr>
+        <td>PWA</td>
+        <td>Offline browser experience, Chromebook compatibility, persistent database</td>
+    <tr>
+    <tr>
+        <td>Online</td>
+        <td>Zero-install access, cloud-only mode, dashboards & authoring tools</td>
+    <tr>
+</table>
+
+All three runtimes load the same React/Next.js application, but each activates a different adapter layer for:
+
+- database implementation
+- filesystem storage
+- syncing approach
+- authentication persistence
+- environment capabilities
+
+# 11.4 Visual Overview
+
+```mermaid
+
+flowchart LR
+    classDef shared fill:#2d3748,stroke:#e2e8f0,color:white
+    classDef native fill:#3182ce,stroke:#bee3f8,color:white
+    classDef pwa fill:#38a169,stroke:#c6f6d5,color:white
+    classDef web fill:#805ad5,stroke:#e9d8fd,color:white
+
+    A["Shared Codebase<br/>React + Next.js + TS<br/>@cheque/* packages"]:::shared
+
+    N["Native Runtime<br/>Capacitor + Native SQLite<br/>LAN Sync + Filesystem"]:::native
+    P["PWA Runtime<br/>Service Worker + OPFS<br/>SQLite WASM"]:::pwa
+    W["Online Browser Runtime<br/>No offline<br/>Cloud-only"]:::web
+
+    A --> N
+    A --> P
+    A --> W
+
+```
+
+# 11.5 Summary
+
+- One codebase → three runtimes
+- Shared logic everywhere
+- Different runtime capabilities based on environment
+- Allows Cheque to run on:
+    - low-end Chromebooks
+    - offline mobile devices
+    - fully online classrooms
+    - teacher desktops
+    - public web environments
+
 This architecture ensures Cheque works everywhere:  
 from offline village schools to fully connected web deployments.
